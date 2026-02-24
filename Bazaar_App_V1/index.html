@@ -1,30 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <meta name="pi-app-verification" content="40e9f22132dd07879923c4a857ddc69d93b6afdc8b4a1a08213fa08ab3c97d02b880036ea86437af674706d9df85dd69343cbdc015889b2c0028a16ef89139a6" />
     
     <title>BAZAAR :: HYPERCOAG</title>
     
     <script src="../logic/bazaar-sdk.js"></script>
     <script src="../logic/library.js"></script>
-</head>
+    
+    <script src="../logic/welcome_logic.js" defer></script>
 
-<body style="background:#000;color:#0f0;font-family:monospace; padding: 20px;">
-    <img src="logo.png" alt="Bazaar Logo" style="width: 150px; margin-bottom: 20px;">
+    <style>
+        :root {
+            --mesh-green: #00ff41;
+            --mesh-glow: rgba(0, 255, 65, 0.3);
+            --bg-dark: #0a0a0a;
+        }
 
-    <h1>PROJECT BAZAAR [MESH v1.32]</h1>
-    <div style="border: 1px solid #0f0; padding: 15px; display: inline-block;">
-        <p>BRIDGE STATUS: <span style="color:#fff;">HYPERCOAGULABLE [ACTIVE]</span></p>
-        <p>LATENCY: 29ms | HEARTBEAT: STABLE</p>
-        <p>DIRECTORY: /Bazaar_App_V1/</p>
-    </div>
+        body {
+            background-color: var(--bg-dark);
+            color: var(--mesh-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 30px;
+            overflow-x: hidden;
+            text-shadow: 0 0 5px var(--mesh-glow);
+        }
 
-    <hr style="border: 0.5px solid #333; margin-top: 20px;">
-    <p>> BAZAAR PIONEERS ASSISTANT INITIALIZING...</p>
+        .logo {
+            width: 150px;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 8px var(--mesh-green));
+            transition: transform 0.3s ease;
+        }
+        .logo:hover { transform: scale(1.05); }
 
-    <div id="assistant-root"></div>
+        h1 {
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
 
-</body>
-</html>
+        .status-panel {
+            border: 1px solid var(--mesh-green);
+            padding: 20px;
+            background: rgba(0, 40, 0, 0.1);
+            display: inline-block;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 10px var(--mesh-glow);
+        }
+
+        .status-label { color: #fff; text-transform: uppercase; font-weight: bold; }
+        
+        hr { border: 0; border-top: 1px solid #222; margin: 30px 0; }
+
+        #assistant-output {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            min-height: 150px;
+            line-height: 1.8;
+        }
+
+       /* CRT Scanline Effect */
+body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    bottom: 0; 
+    right: 0;
+    /* Close the gradients and the rgba values properly */
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 118, 0.06));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+}

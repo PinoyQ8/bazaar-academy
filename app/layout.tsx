@@ -1,10 +1,3 @@
-import React from 'react';
-
-export const metadata = {
-  title: "Project Bazaar | Founder Command",
-  description: "MESH Protocol v23 Mainnet Ready",
-};
-
 export default function RootLayout({
   children,
 }: {
@@ -12,6 +5,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* MESH FORCE: Direct script injection to bypass Next.js export mines */}
+        <script src="https://sdk.minepi.com/pi-sdk.js" defer></script>
+      </head>
       <body style={{ backgroundColor: 'black', margin: 0, color: '#06b6d4' }}>
         {children}
       </body>

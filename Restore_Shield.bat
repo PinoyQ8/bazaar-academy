@@ -1,27 +1,8 @@
 @echo off
-TITLE Project Bazaar - Hybrid Soft_Sync v2.4
-echo [SYSTEM] Initializing Hybrid Mesh...
-echo [SYSTEM] Uptime Shield: 92 PERCENT
-echo --------------------------------------------------
-
-:: 1. MASTER NODE LEDGER STARTUP LOG
-echo. >> Scan_Logs.txt
-echo ================================================== >> Scan_Logs.txt
-echo %DATE% %TIME% - [SYSTEM] Hybrid Mesh Startup Sequence >> Scan_Logs.txt
-
-:: 2. LAUNCH HEARTBEAT (The Hard Layer)
-echo [1/3] Starting Heartbeat Node (server.js)...
-start /min cmd /c "node server.js"
-
-:: 3. LAUNCH MERCHANT DASHBOARD (The Soft Layer)
-echo [2/3] Starting Merchant Command Dashboard (Next.js)...
-start /min cmd /c "npm run dev"
-
-:: 4. LAUNCH MESH BRIDGE (The Entry Point)
-echo [3/3] Re-establishing ngrok Tunnel...
-start /min cmd /c "ngrok http 3000"
-
-echo --------------------------------------------------
-echo [SUCCESS] Hybrid Mesh is now active.
-echo [ADJUDICATOR] Check Log_Viewer for pulse confirmation.
-timeout /t 5
+echo Initiating Bazaar Uptime Shield...
+echo Purging dead shells...
+docker rm -f Bazaar-Main-Node testnet2
+echo Anchoring v19.9 Captive-Core...
+docker run -d --name Bazaar-Main-Node --restart always -p 31401:31401 -p 31402:31402 -p 31403:31403 pinetwork/pi-node-docker:latest --testnet2 --enable-auto-migrations
+echo MESH-SCAN Complete. Node anchored for Feb 27 Protocol.
+pause
