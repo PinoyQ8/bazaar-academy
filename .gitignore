@@ -30,3 +30,7 @@ Thumbs.db
 dist/
 build/
 .next/
+
+# === MESH EXCEPTION: MAINNET CORE ===
+!02_Mainnet/
+!02_Mainnet/**
