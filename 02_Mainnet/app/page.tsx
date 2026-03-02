@@ -1,72 +1,60 @@
-"use client"; 
+"use client";
 
-import React, { useState } from 'react';
+import React from 'react';
+import Link from 'next/link';
 
-export default function AdminPage() {
-  // Hard-coded Node Status for the 100% Green C: Drive
-  const [logs, setLogs] = useState([
-    "SYNC: Node X570-TAICHI Status 100% Green",
-    "MESH: Uptime Shield Active",
-    "STAT: Mainnet Node 47dec Verified"
-  ]);
-
-  const fetchLogs = () => { 
-    setLogs(prev => [...prev, `SYNC: Heartbeat verified at ${new Date().toLocaleTimeString()}`]);
-  };
-
-  const handleFlushRAM = () => { 
-    setLogs(["STAT: RAM Purged - Resyncing Master Ledger..."]); 
-  };
-
+export default function MainnetHome() {
   return (
-    <div className={`min-h-screen font-mono p-4 md:p-8 transition-colors duration-500 ${
-      logs.some(l => l.includes('UNAUTHORIZED')) ? 'bg-red-950' : 'bg-black'
-    }`}>
-      <div className="max-w-4xl mx-auto">
-        {/* BAZAAR_OS HEADER */}
-        <header className="border-b border-gray-800 pb-4 mb-6 flex justify-between items-center px-1">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 bg-cyan-600 rounded-none shadow-[0_0_5px_#0891b2]"></div>
-            <div>
-              <h1 className="text-lg font-bold tracking-[0.2em] text-gray-100 uppercase">BAZAAR_OS</h1>
-              <p className="text-[8px] text-gray-600 font-bold tracking-[0.3em] uppercase">Node: X570-TAICHI // v23.2-SECURE</p>
-            </div>
+    <div className="min-h-screen bg-black font-mono flex flex-col items-center justify-center p-4 border-4 border-double border-gray-900">
+      <div className="max-w-2xl w-full space-y-8 text-center">
+        {/* LOGO SECTOR */}
+        <div className="relative inline-block">
+          <div className="w-16 h-16 border-2 border-cyan-600 flex items-center justify-center mx-auto mb-4 rotate-45 group-hover:rotate-90 transition-transform duration-500">
+            <span className="text-cyan-600 text-2xl -rotate-45 font-bold">B</span>
           </div>
-          <div className="border border-gray-800 px-2 py-1 rounded-none text-right">
-            <span className="text-[9px] text-gray-500 block leading-none uppercase">Uptime Shield</span>
-            <span className="text-xs text-green-600 font-bold font-mono">100.00%</span>
-          </div>
-        </header>
-
-        {/* DATA LEDGER VIEW */}
-        <div className="bg-black border border-gray-800 p-4 h-96 overflow-y-auto mb-8 relative rounded-none scrollbar-hide">
-          {logs.length > 0 ? (
-            logs.map((log, i) => (
-              <div key={i} className="text-[10px] sm:text-[11px] mb-1 font-mono flex items-start leading-tight antialiased">
-                <span className="text-gray-700 mr-2 select-none">[{i.toString().padStart(3, '0')}]</span>
-                <span className={log.includes('UNAUTHORIZED') ? 'text-white bg-red-900 px-1 font-bold' : 'text-cyan-600'}>
-                  {log}
-                </span>
-              </div>
-            ))
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-800 text-[10px] tracking-[0.4em] uppercase">
-              Signal_Loss_Detected
-            </div>
-          )}
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-600 animate-pulse"></div>
         </div>
 
-        {/* COMMAND GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button onClick={fetchLogs} className="border border-gray-800 p-4 text-xs text-white hover:bg-gray-900 uppercase transition-all">
-            Manual Refresh
-          </button>
-          <button onClick={handleFlushRAM} className="border border-red-900 bg-red-950/20 p-6 md:p-4 text-sm md:text-xs text-red-500 hover:bg-red-900 hover:text-white uppercase transition-all font-bold">
-            Flush RAM Ledger
-          </button>
-          <button className="border border-cyan-900 bg-black p-4 text-xs text-gray-400 uppercase">
-            Terminate Session
-          </button>
+        {/* IDENTITY ANCHOR */}
+        <div className="space-y-2">
+          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase">
+            Project Bazaar <span className="text-cyan-600">Mainnet</span>
+          </h1>
+          <p className="text-[10px] text-gray-500 tracking-[0.5em] uppercase">
+            Decentralized Autonomous Organization // Node Alpha
+          </p>
+        </div>
+
+        {/* STATUS LEDGER */}
+        <div className="border border-gray-800 p-6 bg-gray-950/50 backdrop-blur-sm">
+          <div className="flex justify-between text-[10px] mb-4 border-b border-gray-900 pb-2">
+            <span className="text-gray-500 uppercase">System Status:</span>
+            <span className="text-green-500 font-bold uppercase">100% Green / Sovereign</span>
+          </div>
+          
+          <p className="text-gray-400 text-sm leading-relaxed mb-6">
+            Establishing the MESH Protocol for Real Pioneers. This node is hard-coded for secure commerce 
+            within the Pi Network Ecosystem. 47dec Validation Key Engaged.
+          </p>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Link 
+              href="/admin" 
+              className="border border-cyan-900 p-3 text-[10px] text-cyan-600 hover:bg-cyan-900 hover:text-white transition-all uppercase font-bold"
+            >
+              Access Ledger
+            </Link>
+            <div className="border border-gray-800 p-3 text-[10px] text-gray-600 uppercase flex items-center justify-center">
+              March 12 Ignition
+            </div>
+          </div>
+        </div>
+
+        {/* FOOTER METADATA */}
+        <div className="pt-8">
+          <p className="text-[8px] text-gray-700 uppercase tracking-widest">
+            X570 Taichi Workstation // C: Drive Freedom Verified
+          </p>
         </div>
       </div>
     </div>
