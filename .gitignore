@@ -34,3 +34,7 @@ build/
 # === MESH EXCEPTION: MAINNET CORE ===
 !02_Mainnet/
 !02_Mainnet/**
+
+# === MESH EXCEPTION RE-LOCK ===
+02_Mainnet/node_modules/
+02_Mainnet/.next/
