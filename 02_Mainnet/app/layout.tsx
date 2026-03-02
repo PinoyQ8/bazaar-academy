@@ -1,3 +1,5 @@
+import { PiAuthProvider } from "./contexts/pi-auth-context";
+
 export default function RootLayout({
   children,
 }: {
@@ -10,7 +12,9 @@ export default function RootLayout({
         <script src="https://sdk.minepi.com/pi-sdk.js" defer></script>
       </head>
       <body style={{ backgroundColor: 'black', margin: 0, color: '#06b6d4' }}>
-        {children}
+        <PiAuthProvider>
+          {children}
+        </PiAuthProvider>
       </body>
     </html>
   );
