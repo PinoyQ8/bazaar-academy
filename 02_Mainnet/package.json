@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "autoprefixer": "latest",
+    "clsx": "^2.1.1",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "lucide-react": "latest",
@@ -18,6 +19,7 @@
     "postcss": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "tailwind-merge": "^3.5.0",
     "tailwindcss": "latest"
   },
   "devDependencies": {
