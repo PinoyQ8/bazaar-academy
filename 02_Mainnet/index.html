@@ -109,11 +109,11 @@
     async function syncMainnet() {
         const log = document.getElementById('mainnetLog');
         try {
-            const res = await fetch('https://bazaarmainnet-dao.vercel.app/', {
-                headers: {
-                    "ngrok-skip-browser-warning": "69420"
-                }
-            });
+            const res = await fetch('./genesis_ledger.json', {
+    headers: {
+        "ngrok-skip-browser-warning": "69420"
+    }
+});
             const data = await res.json();
             document.getElementById('pioneerCount').innerText = data.count + " / 100";
             log.innerHTML += `<br>[SYNC] Ledger verified. ${data.count} pioneers found in vault.`;
