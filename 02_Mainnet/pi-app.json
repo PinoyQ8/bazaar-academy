@@ -1,5 +1,5 @@
 {
-    "appId": "project-bazaar",
-    "appUrl": "https://pinoyq8.github.io",
-    "isSandbox": true
+    "appId": "bazaarmainnet-dao",
+    "appUrl": "https://bazaarmainnet-dao.vercel.app",
+    "isSandbox": false
 }
