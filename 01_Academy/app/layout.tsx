@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   // REPLACE 'PASTE_YOUR_CODE_HERE' with the code from Step 3 of the Portal.
   verification: {
     other: {
-      "pi-verification": ["PASTE_YOUR_CODE_HERE"],
+      "pi-verification": ["40e9f22132dd07879923c4a857ddc69d93b6afdc8b4a1a08213fa08ab3c97d02b880036ea86437af674706d9df85dd69343cbdc015889b2c0028a16ef89139a6"],
     },
   },
 };
