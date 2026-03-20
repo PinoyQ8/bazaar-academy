@@ -50,12 +50,38 @@ export default function PioneerAuthGate() {
     document.body.appendChild(script);
   }, []);
 
+  const onIncompletePaymentFound = async (payment: any) => {
+    console.log("Ghost payment detected. Synchronizing MESH...", payment);
+    // If the payment hit the blockchain, it will have a txid. We must send it to Vercel.
+    if (payment.transaction && payment.transaction.txid) {
+      try {
+        const response = await fetch('/api/complete-handshake', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            paymentId: payment.identifier, 
+            txid: payment.transaction.txid 
+          })
+        });
+        
+        if (response.ok) {
+          alert("MESH SYNC: Ghost payment finalized. Step #10 Confirmed.");
+        } else {
+          alert("Adjudicator rejected the ghost payment sync.");
+        }
+      } catch (error) {
+        console.error("Adjudicator offline during sync.");
+      }
+    }
+  };
+
   const triggerMeshAuth = async () => {
     if (!isSdkReady) return;
     setIsAuthenticating(true);
     setErrorLog(null);
     try {
-      const authResult = await window.Pi.authenticate(['username', 'payments'], (payment) => console.log("Incomplete:", payment));
+      // We pass the new recovery function here
+      const authResult = await window.Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
       await verifyWithAdjudicator(authResult.accessToken, authResult.user);
     } catch (error: any) {
       setErrorLog("MESH Auth Denied: " + error.message);
