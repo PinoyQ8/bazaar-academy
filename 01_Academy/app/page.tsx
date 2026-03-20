@@ -52,24 +52,22 @@ export default function AcademyDevGate() {
     setStatusMsg("> Stuck payment detected. Attempting MESH Recovery...");
     try {
       if (payment.status.developer_approved && !payment.status.developer_completed) {
-        // Step A: Complete it if it was already approved
         await fetch('/api/complete-handshake', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ paymentId: payment.identifier, txid: payment.transaction.txid })
         });
       } else if (!payment.status.developer_approved) {
-        // Step B: Approve it if it's brand new
         await fetch('/api/payments/approve', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ paymentId: payment.identifier })
         });
       }
-      alert("MESH RECOVERY SUCCESSFUL. Reloading for clean state.");
+      alert("MESH RECOVERY SUCCESSFUL. Reloading...");
       window.location.reload();
     } catch (e) {
-      setStatusMsg("> ERROR: Recovery Handshake failed.");
+      setStatusMsg("> ERROR: Recovery failed.");
     }
   };
 
@@ -98,12 +96,11 @@ export default function AcademyDevGate() {
     }, {
       onReadyForServerApproval: async (paymentId) => {
         setStatusMsg("> Server Approval in progress...");
-        const res = await fetch('/api/payments/approve', { 
+        await fetch('/api/payments/approve', { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ paymentId }) 
         });
-        if (!res.ok) throw new Error("Approval Denied by Adjudicator.");
       },
       onReadyForServerCompletion: async (paymentId, txid) => {
         setStatusMsg("> Blockchain verified. Finalizing...");
@@ -112,11 +109,8 @@ export default function AcademyDevGate() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ paymentId, txid }) 
         });
-        if (res.ok) {
-          setStatusMsg("SUCCESS: Node Validated.");
-        } else {
-          setStatusMsg("ERROR: Handshake incomplete.");
-        }
+        if (res.ok) setStatusMsg("SUCCESS: Node Validated.");
+        else setStatusMsg("ERROR: Handshake incomplete.");
         setIsProcessing(false);
       },
       onCancel: () => {
@@ -142,17 +136,31 @@ export default function AcademyDevGate() {
           <div style={{ fontSize: '0.875rem', opacity: 0.5 }}>SYNCING MESH...</div>
         ) : pioneerData ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* IDENTITY NODE */}
             <div style={{ backgroundColor: '#111827', padding: '1rem', borderRadius: '0.25rem', border: '1px solid #064e3b' }}>
               <p style={{ color: 'white', fontSize: '0.875rem' }}>
                 Welcome, <span style={{ color: '#eab308', fontWeight: 'bold' }}>{pioneerData.username}</span>
               </p>
             </div>
+
+            {/* CURRICULUM NODE - Utility Evidence for Listing */}
+            <div style={{ textAlign: 'left', backgroundColor: '#111', padding: '1rem', border: '1px solid #374151', borderRadius: '0.25rem', fontSize: '0.75rem' }}>
+              <p style={{ color: '#ca8a04', fontWeight: 'bold', marginBottom: '0.5rem' }}>CURRENT MODULES:</p>
+              <ul style={{ listStyle: 'none', padding: 0, color: '#9ca3af', margin: 0 }}>
+                <li>• Phase 1: MESH Protocol Fundamentals</li>
+                <li>• Phase 2: Decentralized Security Auditing</li>
+                <li>• Phase 3: DAO Governance & Nodes</li>
+                <li style={{ color: '#22c55e', marginTop: '0.5rem' }}>• STATUS: 10-UID VALIDATION SPRINT</li>
+              </ul>
+            </div>
+
+            {/* ACTION NODE */}
             <button 
               onClick={executeTransaction}
               disabled={isProcessing}
               style={{ width: '100%', backgroundColor: isProcessing ? '#4b5563' : '#ca8a04', color: 'black', fontWeight: 'bold', padding: '1rem', borderRadius: '0.25rem', border: 'none', cursor: isProcessing ? 'not-allowed' : 'pointer', textTransform: 'uppercase' }}
             >
-              {isProcessing ? "Processing..." : "Send 0.1 Test-Pi"}
+              {isProcessing ? "Processing Block..." : "Send 0.1 Test-Pi"}
             </button>
             {statusMsg && <p style={{ color: statusMsg.includes("SUCCESS") ? "#22c55e" : "#ef4444", fontSize: '0.75rem', marginTop: '10px' }}>{statusMsg}</p>}
           </div>
