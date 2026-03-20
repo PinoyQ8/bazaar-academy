@@ -1,60 +1,50 @@
 import { NextResponse } from 'next/server';
 
-// 1. Hard-Code the expected Pi Network Sandbox API response
-interface PiUserResponse {
-  uid: string;
-  username: string;
-}
-
 export async function POST(request: Request) {
   try {
-    // Parse the payload from the client-side RAM buffer
+    // 1. Parse the MESH payload (paymentId and txid are required here)
     const body = await request.json();
-    const { accessToken } = body;
+    const { paymentId, txid } = body;
 
-    if (!accessToken) {
+    // 2. Structural Audit: Check for missing identifiers
+    if (!paymentId || !txid) {
+      console.error("MESH Error: Missing paymentId or txid in request body.");
       return NextResponse.json(
-        { error: "Access Token missing from Bridge request. Shield activated." }, 
-        { status: 400 }
+        { error: "Payload Malformed. paymentId or txid missing." }, 
+        { status: 400 } // This is what was causing your 400 errors
       );
     }
 
-    // 2. Adjudicator Logic: Verify token securely via server-to-server Bridge
-    const piVerifyUrl = "https://api.minepi.com/v2/me";
+    // 3. Handshake: Notify Pi Network that the transaction is finalized
+    // Note: Completion uses 'Authorization': 'Key <API_KEY>', not 'Bearer'
+    const piCompleteUrl = `https://api.minepi.com/v2/payments/${paymentId}/complete`;
     
-    const verifyResponse = await fetch(piVerifyUrl, {
-      method: 'GET',
+    const response = await fetch(piCompleteUrl, {
+      method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
+        'Authorization': `Key ${process.env.PI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ txid })
     });
 
-    if (!verifyResponse.ok) {
-      // The token was rejected by the Sandbox. Intrusion blocked.
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log("MESH Handshake Confirmed:", paymentId);
+      return NextResponse.json({ status: "Complete", txid }, { status: 200 });
+    } else {
+      console.error("Pi Server Rejected Completion:", result);
       return NextResponse.json(
-        { error: "MESH verification failed. Invalid or expired Token." }, 
-        { status: 401 }
+        { error: "Pi Server rejected the final handshake." }, 
+        { status: 500 }
       );
     }
 
-    // 3. Extract the verified Pioneer credentials
-    const pioneerVerificationData: PiUserResponse = await verifyResponse.json();
-
-    // *Integration Node:* At this stage in the future v23 Mainnet, 
-    // the Adjudicator would check `pioneerVerificationData.uid` against 
-    // the DAO database to determine Service Provider access tiers.
-
-    // 4. Return success signal to the client
-    return NextResponse.json({ 
-      status: "Verified", 
-      username: pioneerVerificationData.username,
-      uid: pioneerVerificationData.uid
-    }, { status: 200 });
-
   } catch (error) {
-    console.error("Bridge Connection Error:", error);
+    console.error("Critical Adjudicator Failure:", error);
     return NextResponse.json(
-      { error: "Bridge connection error. Adjudicator offline." }, 
+      { error: "Internal Server Error during handshake." }, 
       { status: 500 }
     );
   }

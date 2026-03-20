@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 
-// 1. MESH Hard-Coding: The Global Pi Registry (Identity + Payments)
+// 1. MESH Hard-Coding: The Global Pi Registry
 declare global {
   interface Window {
     Pi: {
@@ -30,13 +30,9 @@ interface PioneerData {
 
 export default function PioneerAuthGate() {
   const [pioneerData, setPioneerData] = useState<PioneerData | null>(null);
-  
-  // Auth States
   const [isSdkReady, setIsSdkReady] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [errorLog, setErrorLog] = useState<string | null>(null);
-
-  // Payment States
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
@@ -44,8 +40,12 @@ export default function PioneerAuthGate() {
     const script = document.createElement('script');
     script.src = "https://sdk.minepi.com/pi-sdk.js";
     script.onload = () => {
-      window.Pi.init({ version: "2.0", sandbox: true });
-      setIsSdkReady(true);
+      try {
+        window.Pi.init({ version: "2.0", sandbox: true });
+        setIsSdkReady(true);
+      } catch (e) {
+        console.error("SDK Init Error:", e);
+      }
     };
     document.body.appendChild(script);
   }, []);
@@ -54,12 +54,11 @@ export default function PioneerAuthGate() {
     if (!isSdkReady) return;
     setIsAuthenticating(true);
     setErrorLog(null);
-
     try {
-      const authResult = await window.Pi.authenticate(['username', 'payments'], (payment) => console.log("Incomplete transaction:", payment));
+      const authResult = await window.Pi.authenticate(['username', 'payments'], (payment) => console.log("Incomplete:", payment));
       await verifyWithAdjudicator(authResult.accessToken, authResult.user);
-    } catch (error) {
-      setErrorLog("Authentication rejected by the MESH.");
+    } catch (error: any) {
+      setErrorLog("MESH Auth Denied: " + error.message);
       setIsAuthenticating(false);
     }
   };
@@ -71,7 +70,6 @@ export default function PioneerAuthGate() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ accessToken })
       });
-
       if (response.ok) {
         setPioneerData(user);
       } else {
@@ -85,6 +83,11 @@ export default function PioneerAuthGate() {
   };
 
   const executeTransaction = () => {
+    if (!isSdkReady) {
+      alert("MESH Error: SDK not initialized.");
+      return;
+    }
+
     setIsProcessingPayment(true);
     setPaymentStatus("> Initiating MESH Transaction...");
 
@@ -102,8 +105,9 @@ export default function PioneerAuthGate() {
             body: JSON.stringify({ paymentId })
           });
           if (!response.ok) throw new Error("Approval rejected.");
-        } catch (error) {
+        } catch (error: any) {
           setPaymentStatus("> ERROR: Adjudicator denied transaction.");
+          alert("Approval Failed: Check PI_API_KEY in Vercel.");
         }
       },
       onReadyForServerCompletion: async (paymentId: string, txid: string) => {
@@ -132,6 +136,8 @@ export default function PioneerAuthGate() {
       onError: (error: Error, payment?: any) => {
         setPaymentStatus(`> MESH Error: ${error.message}`);
         setIsProcessingPayment(false);
+        // CRITICAL DEBUG: Forces mobile browser to show the reason for the hang
+        alert("SDK BLOCK: " + error.message);
       }
     });
   };
@@ -187,22 +193,12 @@ export default function PioneerAuthGate() {
                 : "Authenticate via Pi Sandbox"}
             </button>
             
-            {/* CIRCUIT BREAKER: Force Entry if SDK hangs */}
             <button 
-              onClick={() => {
-                setIsAuthenticating(false);
-                setPioneerData({ username: "Bazaar_Founder_Dev", uid: "DEV_OVERRIDE_01" });
-              }}
+              onClick={() => setPioneerData({ username: "Bazaar_Founder_Dev", uid: "DEV_OVERRIDE_01" })}
               className="mt-4 text-[10px] text-gray-600 hover:text-yellow-500 uppercase tracking-widest transition-colors font-mono"
             >
               [ Execute Adjudicator Bypass ]
             </button>
-            
-            {errorLog && (
-              <div className="bg-red-900/20 border border-red-500 p-3 rounded">
-                <p className="text-red-500 text-sm font-mono">&gt; ERROR: {errorLog}</p>
-              </div>
-            )}
           </div>
         )}
       </div>
