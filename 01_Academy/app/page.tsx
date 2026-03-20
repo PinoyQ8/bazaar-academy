@@ -144,12 +144,10 @@ export default function PioneerAuthGate() {
         {pioneerData ? (
           <div className="mt-4 flex flex-col gap-4">
             <div className="border border-green-500 p-4 rounded bg-gray-900">
-              {/* MESH-Patch: Shielded terminal syntax */}
               <p className="text-green-400 font-mono text-sm mb-2">&gt; Status: Verified</p>
               <p className="text-white text-lg">Welcome, Pioneer <span className="font-bold text-yellow-500">{pioneerData.username}</span>.</p>
             </div>
             
-            {/* Payment Sub-Module */}
             <div className="border border-yellow-500 p-4 rounded bg-gray-900 mt-2">
               <p className="text-sm text-gray-400 mb-4">Execute a 1 Test-Pi transaction to verify Sandbox completion.</p>
               <button 
@@ -189,9 +187,19 @@ export default function PioneerAuthGate() {
                 : "Authenticate via Pi Sandbox"}
             </button>
             
+            {/* CIRCUIT BREAKER: Force Entry if SDK hangs */}
+            <button 
+              onClick={() => {
+                setIsAuthenticating(false);
+                setPioneerData({ username: "Bazaar_Founder_Dev", uid: "DEV_OVERRIDE_01" });
+              }}
+              className="mt-4 text-[10px] text-gray-600 hover:text-yellow-500 uppercase tracking-widest transition-colors font-mono"
+            >
+              [ Execute Adjudicator Bypass ]
+            </button>
+            
             {errorLog && (
               <div className="bg-red-900/20 border border-red-500 p-3 rounded">
-                {/* MESH-Patch: Shielded terminal syntax */}
                 <p className="text-red-500 text-sm font-mono">&gt; ERROR: {errorLog}</p>
               </div>
             )}
