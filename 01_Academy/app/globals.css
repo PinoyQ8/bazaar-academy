@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 234, 179, 8; /* Bazaar Yellow */
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: black;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Ensure buttons aren't "naked" even if Tailwind lags */
+button {
+  transition: all 0.2s ease-in-out;
+}
