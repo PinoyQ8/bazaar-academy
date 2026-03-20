@@ -48,14 +48,32 @@ export default function AcademyDevGate() {
     document.body.appendChild(script);
   }, []);
 
+  // 1. MESH RECOVERY: This clears the "Pending Payment" error on the S23
+  const onIncompletePaymentFound = async (payment: any) => {
+    console.log("Ghost payment detected. Resyncing Adjudicator...", payment);
+    try {
+      await fetch('/api/payments/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId: payment.identifier })
+      });
+      alert("MESH RECOVERY: Stuck payment identified and approved. Reloading...");
+      window.location.reload(); 
+    } catch (e) {
+      console.error("Recovery Handshake Failed", e);
+    }
+  };
+
   const triggerMeshAuth = async () => {
     if (!isSdkReady) return;
     setIsAuthenticating(true);
     try {
-      const authResult = await window.Pi.authenticate(['username', 'payments'], () => {});
+      // 2. Pass the recovery function into the authentication bridge
+      const authResult = await window.Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
       setPioneerData(authResult.user);
     } catch (error: any) {
       console.error("Auth Denied:", error.message);
+      // If the error says "Already has a pending payment," the onIncompletePaymentFound above should trigger
     } finally {
       setIsAuthenticating(false);
     }
@@ -63,53 +81,68 @@ export default function AcademyDevGate() {
 
   const executeTransaction = () => {
     setIsProcessingPayment(true);
+    setPaymentStatus("> Executing...");
+
     window.Pi.createPayment({
       amount: 0.1, 
       memo: "Academy Testnet Validation", 
       metadata: { role: "Pioneer" }, 
     }, {
-      onReadyForServerApproval: (id) => fetch('/api/payments/approve', { method: 'POST', body: JSON.stringify({ id }) }),
-      onReadyForServerCompletion: (id, txid) => {
-        fetch('/api/complete-handshake', { method: 'POST', body: JSON.stringify({ id, txid }) });
+      onReadyForServerApproval: (paymentId) => {
+        return fetch('/api/payments/approve', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentId }) 
+        });
+      },
+      onReadyForServerCompletion: (paymentId, txid) => {
+        fetch('/api/complete-handshake', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentId, txid }) 
+        });
         setPaymentStatus("SUCCESS");
         setIsProcessingPayment(false);
       },
       onCancel: () => setIsProcessingPayment(false),
       onError: (e) => {
         setIsProcessingPayment(false);
-        alert(e.message);
+        alert("MESH Error: " + e.message);
       }
     });
   };
 
+  // 3. UI RENDER: Using Hard-Coded Inline Styles for S23 Compatibility
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-6 font-sans">
-      <div className="bg-black text-yellow-500 p-8 rounded-lg border border-gray-800 max-w-md w-full shadow-xl">
-        <h2 className="text-xl font-bold mb-6 border-b border-gray-800 pb-2 uppercase tracking-widest">
-          Bazaar Academy
+    <div style={{ backgroundColor: 'black', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#eab308', fontFamily: 'monospace' }}>
+      <div style={{ border: '1px solid #374151', padding: '2rem', borderRadius: '0.5rem', width: '100%', maxWidth: '400px', textAlign: 'center', backgroundColor: '#000' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', borderBottom: '1px solid #374151', paddingBottom: '0.5rem' }}>
+          BAZAAR ACADEMY
         </h2>
         
         {!isSdkReady ? (
-          <div className="text-sm animate-pulse text-gray-500">Syncing MESH...</div>
+          <div style={{ fontSize: '0.875rem', opacity: 0.5 }}>SYNCING MESH...</div>
         ) : pioneerData ? (
-          <div className="space-y-4">
-            <div className="bg-gray-900 p-4 rounded border border-green-900">
-              <p className="text-white text-sm">Welcome, <span className="text-yellow-500 font-bold">{pioneerData.username}</span></p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ backgroundColor: '#111827', padding: '1rem', borderRadius: '0.25rem', border: '1px solid #064e3b' }}>
+              <p style={{ color: 'white', fontSize: '0.875rem' }}>
+                Welcome, <span style={{ color: '#eab308', fontWeight: 'bold' }}>{pioneerData.username}</span>
+              </p>
             </div>
             <button 
               onClick={executeTransaction}
               disabled={isProcessingPayment}
-              className="w-full bg-yellow-600 text-black font-bold py-3 rounded uppercase text-xs"
+              style={{ width: '100%', backgroundColor: '#ca8a04', color: 'black', fontWeight: 'bold', padding: '1rem', borderRadius: '0.25rem', border: 'none', cursor: 'pointer', textTransform: 'uppercase' }}
             >
               {isProcessingPayment ? "Processing..." : "Send 0.1 Test-Pi"}
             </button>
-            {paymentStatus && <p className="text-green-500 text-center text-xs mt-2">Transaction Finalized</p>}
+            {paymentStatus && <p style={{ color: '#22c55e', fontSize: '0.75rem' }}>{paymentStatus}</p>}
           </div>
         ) : (
           <button 
             onClick={triggerMeshAuth}
             disabled={isAuthenticating}
-            className="w-full border border-yellow-600 text-yellow-500 font-bold py-3 rounded uppercase text-xs hover:bg-yellow-600/10"
+            style={{ width: '100%', border: '1px solid #ca8a04', backgroundColor: 'transparent', color: '#eab308', fontWeight: 'bold', padding: '1rem', borderRadius: '0.25rem', cursor: 'pointer', textTransform: 'uppercase' }}
           >
             {isAuthenticating ? "Authenticating..." : "Authenticate Testnet"}
           </button>
