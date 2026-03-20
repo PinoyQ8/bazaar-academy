@@ -4,14 +4,15 @@ export async function POST(request: Request) {
   try {
     // 1. Parse the MESH payload (paymentId and txid are required here)
     const body = await request.json();
-    const { paymentId, txid } = body;
+    // MESH-SYNC: Accept either 'paymentId' or 'id' for maximum reliability
+    const paymentId = body.paymentId || body.id; 
+    const txid = body.txid;
 
-    // 2. Structural Audit: Check for missing identifiers
     if (!paymentId || !txid) {
-      console.error("MESH Error: Missing paymentId or txid in request body.");
+      console.error("MESH Error: Missing paymentId or txid. Body received:", body);
       return NextResponse.json(
         { error: "Payload Malformed. paymentId or txid missing." }, 
-        { status: 400 } // This is what was causing your 400 errors
+        { status: 400 }
       );
     }
 
